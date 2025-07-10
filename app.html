@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bone Fracture Diagnosis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .upload-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: rgba(72, 149, 239, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(72, 149, 239, 0.1);
+        }
+
+        .upload-area.active {
+            border-color: var(--success);
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #d1145a;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            display: none;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .diagnosis-card {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(72, 149, 239, 0.1) 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--primary);
+        }
+
+        .diagnosis-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            background-color: var(--success);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .healing-time {
+            font-size: 1.2rem;
+            color: var(--warning);
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .healing-time i {
+            font-size: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .probability-cell {
+            font-weight: 600;
+        }
+
+        .high-probability {
+            color: var(--success);
+        }
+
+        .medium-probability {
+            color: var(--warning);
+        }
+
+        .low-probability {
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .upload-section {
+                padding: 1.5rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bone Fracture Diagnosis</h1>
+            <p class="subtitle">Upload an X-ray image to detect fractures and get healing estimates</p>
+        </header>
+
+        <section class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h2>Drag & Drop X-Ray Image</h2>
+                <p>or click to browse files</p>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                <button class="btn" id="uploadBtn" style="margin-top: 1rem;">
+                    <i class="fas fa-upload"></i> Select Image
+                </button>
+                <img id="imagePreview" alt="Image Preview">
+            </div>
+        </section>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Analyzing image for fractures...</p>
+        </div>
+
+        <section class="results-section" id="resultsSection">
+            <h2>Diagnosis Results</h2>
+
+            <div class="diagnosis-card">
+                <div class="diagnosis-title" id="diagnosisName"></div>
+                <div class="confidence-badge" id="confidenceValue"></div>
+                <div class="healing-time">
+                    <i class="fas fa-clock"></i>
+                    <span id="healingTime"></span>
+                </div>
+            </div>
+
+            <h3>Detailed Probability Analysis</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fracture Type</th>
+                        <th>Probability</th>
+                        <th>Typical Healing Time</th>
+                    </tr>
+                </thead>
+                <tbody id="probabilityTableBody">
+                    <!-- Table rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+
+            <div class="action-buttons">
+                <button class="btn" id="analyzeAnotherBtn">
+                    <i class="fas fa-redo"></i> Analyze Another Image
+                </button>
+                <button class="btn btn-outline" id="downloadReportBtn">
+                    <i class="fas fa-download"></i> Download Full Report
+                </button>
+            </div>
+        </section>
+
+        <footer>
+            <p>Bone Fracture Diagnosis System | For medical professionals only</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadArea = document.getElementById('uploadArea');
+        const imagePreview = document.getElementById('imagePreview');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultsSection = document.getElementById('resultsSection');
+        const analyzeAnotherBtn = document.getElementById('analyzeAnotherBtn');
+        const downloadReportBtn = document.getElementById('downloadReportBtn');
+
+        // Event Listeners
+        uploadBtn.addEventListener('click', () => imageUpload.click());
+        uploadArea.addEventListener('click', () => imageUpload.click());
+        analyzeAnotherBtn.addEventListener('click', resetForm);
+        downloadReportBtn.addEventListener('click', downloadReport);
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+
+            if (e.dataTransfer.files.length) {
+                imageUpload.files = e.dataTransfer.files;
+                handleImageUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        imageUpload.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        // Handle image upload and preview
+        function handleImageUpload(file) {
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file (JPEG, PNG, etc.)');
+                return;
+            }
+
+            // Display preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                uploadArea.querySelector('h2').textContent = 'Image Ready for Analysis';
+                uploadArea.querySelector('p').textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+
+            // Submit for analysis
+            analyzeImage(file);
+        }
+
+        // Analyze the image via API
+        function analyzeImage(file) {
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('http://localhost:1000/predict/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+
+                // Display results
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingIndicator.style.display = 'none';
+                alert('Error analyzing image. Please try again.\n' + error.message);
+            });
+        }
+
+        // Display the analysis results
+        function displayResults(data) {
+            document.getElementById('diagnosisName').textContent = data.diagnosis;
+            document.getElementById('confidenceValue').textContent = `${data.confidence} confidence`;
+            document.getElementById('healingTime').textContent = data.healing_time;
+
+            // Populate probability table
+            const tableBody = document.getElementById('probabilityTableBody');
+            tableBody.innerHTML = '';
+
+            for (const [fractureType, info] of Object.entries(data.details)) {
+                const row = document.createElement('tr');
+
+                const typeCell = document.createElement('td');
+                typeCell.textContent = fractureType;
+
+                const probCell = document.createElement('td');
+                const probability = parseFloat(info.probability.replace('%', ''));
+                probCell.textContent = info.probability;
+                probCell.className = 'probability-cell';
+
+                // Add color coding based on probability
+                if (probability > 50) {
+                    probCell.classList.add('high-probability');
+                } else if (probability > 20) {
+                    probCell.classList.add('medium-probability');
+                } else {
+                    probCell.classList.add('low-probability');
+                }
+
+                const healingCell = document.createElement('td');
+                healingCell.textContent = info.healing_time;
+
+                row.appendChild(typeCell);
+                row.appendChild(probCell);
+                row.appendChild(healingCell);
+
+                tableBody.appendChild(row);
+            }
+
+            // Show results section
+            resultsSection.style.display = 'block';
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Reset the form to analyze another image
+        function resetForm() {
+            // Reset file input
+            imageUpload.value = '';
+
+            // Hide preview and results
+            imagePreview.style.display = 'none';
+            resultsSection.style.display = 'none';
+
+            // Reset upload area text
+            uploadArea.querySelector('h2').textContent = 'Drag & Drop X-Ray Image';
+            uploadArea.querySelector('p').textContent = 'or click to browse files';
+
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Download report (placeholder functionality)
+        function downloadReport() {
+            alert('Report download functionality would be implemented here.\nThis could generate a PDF with all the diagnosis information.');
+            // In a real implementation, you would:
+            // 1. Generate a PDF or HTML report
+            // 2. Include the image, diagnosis, confidence, healing time
+            // 3. Include the detailed probability table
+            // 4. Offer download to the user
+        }
+    </script>
+</body>
+</html>
