@@ -438,7 +438,7 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            fetch('http://localhost:1000/predict/', {
+            fetch('/predict/', {
                 method: 'POST',
                 body: formData
             })
